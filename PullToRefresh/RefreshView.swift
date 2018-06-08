@@ -114,11 +114,40 @@ class RefreshView: UIView, UIScrollViewDelegate {
       newInsets.top += self.frame.size.height
       self.scrollView.contentInset = newInsets
     }
+
+	//setting the fromValue to a negative value creates a bit of delay; nothing happens while the animation moves from the negative value to 0
+	let strokeStartAnimation = CABasicAnimation(keyPath: "strokeStart")
+		strokeStartAnimation.fromValue 	= -0.5
+		strokeStartAnimation.toValue	= 1.0
+
+	let strokeEndAnimation	= CABasicAnimation(keyPath: "strokeEnd")
+		strokeEndAnimation.fromValue 	= 0.0
+		strokeEndAnimation.toValue		= 1.0
+
+	let strokeAnimationGroup = CAAnimationGroup()
+		strokeAnimationGroup.duration			= 1.5
+		strokeAnimationGroup.repeatDuration		= 5.0
+		strokeAnimationGroup.animations			= [strokeStartAnimation, strokeEndAnimation]
+	ovalShapeLayer.add(strokeAnimationGroup, forKey: nil)
+
+	let flightAnimation = CAKeyframeAnimation(keyPath: "position")
+		flightAnimation.path 			= ovalShapeLayer.path
+		flightAnimation.calculationMode	= kCAAnimationPaced
+//		flightAnimation.rotationMode	= kCAAnimationRotateAuto
+
+	let airplaneOrientationAnimation = CABasicAnimation(keyPath: "transform.rotation")
+		airplaneOrientationAnimation.fromValue 	= 0
+		airplaneOrientationAnimation.toValue	= 2.0 * .pi
+
+	let flightAnimationGroup = CAAnimationGroup()
+		flightAnimationGroup.duration		= 1.5
+		flightAnimationGroup.repeatDuration	= 5.0
+		flightAnimationGroup.animations		= [flightAnimation, airplaneOrientationAnimation]
+	airplaneLayer.add(flightAnimationGroup, forKey: nil)
     
   }
   
   func endRefreshing() {
-    
     isRefreshing = false
     
     UIView.animate(withDuration: 0.3, delay:0.0, options: .curveEaseOut,
